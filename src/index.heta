@@ -1,0 +1,56 @@
+/*
+  template file for creating platform
+*/
+// add qsp units
+//include ./qsp-units.heta
+
+include BIOMD0000000448_url.xml type sbml
+
+// model updates
+insulin @Const = 10;
+
+// observables
+block {output: true} begin
+  measuredIRp;
+  measuredIRint;
+  measuredIRS1p;
+  measuredIRS1307;
+  measuredPKB308p;
+  measuredPKB473p;
+  measuredAS160p;
+  measuredmTORC1a;
+  measuredS6Kp;
+  glucoseuptake;
+  measuredmTORC2a;
+  measuredS6p;
+
+  GLUT4;
+  GLUT4m;
+end
+
+// IR (insuline dependent)
+IR_total @Const = 100; // IR reduce 55%
+GLUT4_total @Const = 100;// GLUT4 reduce 50%
+diabetes @Const = 1; // diabetes 15%
+//
+IR .= IR_total * 99.87/100; // 99.87
+IRp .= 0;
+IRins .= 0;
+IRip .= IR_total * 0.02/100;      // 0.02
+IRi .= IR_total * 0.11/100;       // 0.11
+//
+GLUT4 .= GLUT4_total * 73.48/100;   // 73.48
+GLUT4m .= GLUT4_total * 26.52/100;  // 26.52
+
+// exports
+//#export { format: JSON, filepath: output };
+#export { format: HetaCode, filepath: model };
+//#export { format: YAML, filepath: output };
+//#export { format: XLSX, filepath: table, omitRows: 3, splitByClass: true };
+//#export { format: SBML, filepath: sbml, version: L2V4 };
+//#export { format: SLV, filepath: model, eventsOff: false };
+//#export { format: DBSolve, filepath: dbsolve };
+//#export { format: Simbio, filepath: simbio };
+//#export { format: Mrgsolve, filepath: mrgsolve };
+//#export { format: Matlab, filepath: matlab };
+//#export { format: Julia, filepath: julia };
