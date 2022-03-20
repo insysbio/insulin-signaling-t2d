@@ -52,7 +52,8 @@ results_df = p |> sim |> DataFrame
 scn_titr_csv = read_scenarios("./julia/titration.csv")
 add_scenarios!(p, scn_titr_csv)
 
-results_titr_df = sim(p, saveat=[10.]) |> DataFrame # error here when saveat=[15.]
-results_titr_df
+results_titr = sim(p, saveat=[10.]) # error here when saveat=[15.]
+results_titr_df = DataFrame(results_titr, add_parameters=true)
+results_titr_subset = subset(results_titr_df, :titr=>x->x.===true)
 
-@df results_titr_df plot(:t, :measuredmTORC2a, title = "xxx")
+@df results_titr_subset plot(:insulin, :measuredmTORC2a, group=:diabetes, title = "xxx", xscale = :log10)
