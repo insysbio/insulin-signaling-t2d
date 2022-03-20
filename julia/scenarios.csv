@@ -1,0 +1,3 @@
+id,parameters.IR_total,parameters.GLUT4_total,parameters.diabetes,tspan
+base,,,,30
+ir,55,50,0.15,30
