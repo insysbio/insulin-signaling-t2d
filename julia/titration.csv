@@ -1,0 +1,13 @@
+id,insulin,parameters.IR_total,parameters.GLUT4_total,parameters.diabetes,tspan
+base_ins_3,1.00E-03,,,,10
+base_ins_2,1.00E-02,,,,10
+base_ins_1,1.00E-01,,,,10
+base_ins0,1.00E+00,,,,10
+base_ins1,1.00E+01,,,,10
+base_ins2,1.00E+02,,,,10
+ir_ins_3,1.00E-03,55,50,0.15,10
+ir_ins_2,1.00E-02,55,50,0.15,10
+ir_ins_1,1.00E-01,55,50,0.15,10
+ir_ins0,1.00E+00,55,50,0.15,10
+ir_ins1,1.00E+01,55,50,0.15,10
+ir_ins2,1.00E+02,55,50,0.15,10

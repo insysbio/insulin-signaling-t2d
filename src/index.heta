@@ -7,7 +7,7 @@
 include BIOMD0000000448_url.xml type sbml
 
 // model updates
-insulin @Const = 10;
+insulin @Const = 10; // nM
 
 // observables
 block {output: true} begin

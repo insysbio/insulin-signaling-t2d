@@ -2,8 +2,7 @@
 
 ## Preparations
 
-using HetaSimulator, Plots
-using StatsPlots
+using HetaSimulator, StatsPlots
 
 ## Loading
 
@@ -48,3 +47,12 @@ results_df = p |> sim |> DataFrame
 @df results_df plot(:t, :measuredmTORC2a, group = :scenario, title = "Fig5 5C")
 @df results_df plot(:t, :measuredS6p, group = :scenario, title = "Fig5 5D")
 
+### Titration-like simulations
+
+scn_titr_csv = read_scenarios("./julia/titration.csv")
+add_scenarios!(p, scn_titr_csv)
+
+results_titr_df = sim(p, saveat=[10.]) |> DataFrame # error here when saveat=[15.]
+results_titr_df
+
+@df results_titr_df plot(:t, :measuredmTORC2a, title = "xxx")
