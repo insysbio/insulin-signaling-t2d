@@ -65,12 +65,10 @@ plot(res_ir)
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 HetaSimulator = "630b40c4-2f38-41ff-bcb3-b2c7232fed0d"
-NaNMath = "77ba4419-2d1f-58cd-9bb1-8ffee604a2e3"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 
 [compat]
 HetaSimulator = "~0.4.8"
-NaNMath = "~0.3.7"
 Plots = "~1.27.1"
 """
 
