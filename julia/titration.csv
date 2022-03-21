@@ -1,4 +1,4 @@
-id,parameters.insulin,parameters.IR_total,parameters.GLUT4_total,parameters.diabetes,tspan,tags[]
+id,parameters.insulin,parameters.IR_total,parameters.GLUT4_total,parameters.diabetes,tspan,group
 base_ins_3,1.00E-03,,,,10,titr
 base_ins_25,3.16E-03,,,,10,titr
 base_ins_2,1.00E-02,,,,10,titr

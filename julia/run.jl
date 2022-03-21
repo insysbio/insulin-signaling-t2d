@@ -12,7 +12,6 @@ m = models(p)[:nameless]
 ## Default simulation
 
 Scenario(m, (0.,30.)) |> sim |> plot
-
 Scenario(m, (0.,30.), parameters = [:IR_total=>55., :GLUT4_total=>50, :diabetes=>0.15]) |> sim |> plot
 
 ## Simulation scenarios
@@ -54,7 +53,7 @@ add_scenarios!(p, scn_titr_csv)
 
 results_titr = sim(p, saveat=[10.]) # error here when saveat=[15.]
 results_titr_df = DataFrame(results_titr, add_parameters=true)
-results_titr_subset = subset(results_titr_df, Symbol("tags.titr")=>x->x.===true)
+results_titr_subset = subset(results_titr_df, :group=>x->x.===:titr)
 
 @df results_titr_subset plot(:insulin, :measuredmTORC2a, group=:diabetes, title = "TORC2a", xscale = :log10)
 
