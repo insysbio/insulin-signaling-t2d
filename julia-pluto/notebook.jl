@@ -5,7 +5,7 @@ using Markdown
 using InteractiveUtils
 
 # ╔═╡ 0387c8fe-ea24-4f5f-8bde-264238175a85
-using HetaSimulator, Plots
+using HetaSimulator, Plots, NaNMath
 
 # ╔═╡ 7021a4a7-86cf-4866-9790-6222cf01e896
 md"# Dynamic QSP reporting with Julia and Pluto.jl"
@@ -31,7 +31,7 @@ Loading platform with prepared files
 """
 
 # ╔═╡ 3f2b62d8-1711-4fde-8d8d-1480b24255d9
-p = load_platform("..")
+p = load_jlplatform("../src/jlmodel.jl")
 
 # ╔═╡ a783c6e9-a745-4e37-b745-e8366101cf80
 m = models(p)[:nameless]
