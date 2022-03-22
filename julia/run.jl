@@ -53,7 +53,7 @@ add_scenarios!(p, scn_titr_csv)
 
 results_titr = sim(p, saveat=[10.]) # error here when saveat=[15.]
 results_titr_df = DataFrame(results_titr, add_parameters=true)
-results_titr_subset = subset(results_titr_df, :group=>x->x.===:titr)
+results_titr_subset = subset(results_titr_df, :is_titr=>x->x.===1.)
 
 @df results_titr_subset plot(:insulin, :measuredmTORC2a, group=:diabetes, title = "TORC2a", xscale = :log10)
 

@@ -4,12 +4,10 @@
 // add qsp units
 //include ./qsp-units.heta
 
+// load SBML model as a content of the platform
 include BIOMD0000000448_url.xml type sbml
 
-// model updates
-insulin @Const = 10; // nM
-
-// observables
+// make the records of a model observable
 block {output: true} begin
   measuredIRp;
   measuredIRint;
@@ -23,16 +21,17 @@ block {output: true} begin
   glucoseuptake;
   measuredmTORC2a;
   measuredS6p;
-
-  GLUT4;
-  GLUT4m;
 end
 
-// IR (insuline dependent)
-IR_total @Const = 100; // IR reduce 55%
-GLUT4_total @Const = 100;// GLUT4 reduce 50%
-diabetes @Const = 1; // diabetes 15%
-//
+// make insulin as an input of the model
+insulin @Const = 10; // nM
+
+// make IR (insuline resistance) specific parameters as an input of the model
+IR_total @Const = 100;    // reduce to 55%
+GLUT4_total @Const = 100; // GLUT4 reduce to 50%
+diabetes @Const = 1;      // reduce to 15%
+
+// recalculate initial values for IR and base condition
 IR .= IR_total * 99.87/100; // 99.87
 IRp .= 0;
 IRins .= 0;
@@ -41,6 +40,12 @@ IRi .= IR_total * 0.11/100;       // 0.11
 //
 GLUT4 .= GLUT4_total * 73.48/100;   // 73.48
 GLUT4m .= GLUT4_total * 26.52/100;  // 26.52
+
+// variable parameters
+k1a @Const = 0.6331;
+k1basal @Const = 0.03683;
+k1c @Const = 0.8768;
+k1d @Const = 31.01;
 
 // exports
 //#export { format: JSON, filepath: output };
