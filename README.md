@@ -1,15 +1,9 @@
 # insulin-signaling-t2d
 
-_Insulin Signaling in Type 2 Diabetesmodel loaded from SBML code_
+_Dynamic notebooks for QSP usage case: Insulin Signaling in Type 2 Diabetes_
 
 [![Heta project](https://img.shields.io/badge/%CD%B1-Heta_project-blue)](https://hetalang.github.io/)
 [![GitHub license](https://img.shields.io/github/license/insysbio/insulin-signaling-t2d.svg)](https://github.com/insysbio/insulin-signaling-t2d/blob/master/LICENSE)
-
-The model and data were reconstructed from the article:
-
-> Brannmark C, Nyman E, Fagerholm S, Bergenholm L, Ekstrand EM, Cedersund G, Stralfors P. Insulin Signaling in Type 2 Diabetes: EXPERIMENTAL AND MODELING ANALYSES REVEAL MECHANISMS OF INSULIN RESISTANCE IN HUMAN ADIPOCYTES. JOURNAL OF BIOLOGICAL CHEMISTRY. 2013 288(14):9867–9880. DOI: 10.1074/jbc.M112.432062
-
-The SBML version was downloaded from BioModels <https://www.ebi.ac.uk/biomodels/BIOMD0000000448>
 
 ## Abstract
 
@@ -25,10 +19,10 @@ __Objectives__: Application and testing several software configurations for the 
 
 __Methods__: We tested several configurations for dynamic reporting: 
 
+- Julia environment + HetaSimulator.jl + Jupiter notebooks.
+- Julia environment + HetaSimulator.jl + Pluto.jl;
 - R environment + heta-compiler + mrgsolve + R Markdown;
 - R environment + heta-compiler + mrgsolve + Jupiter notebook; 
-- Julia environment + HetaSimulator.jl + Pluto.jl;
-- Julia environment + HetaSimulator.jl + Jupiter notebooks.
 
 __Results__: The dynamic report was created for each model and configuration. It included model code loading, single and Monte-Carlo simulations, and visualization plots. All settings and configuration files are shared on GitHub.
 
@@ -48,6 +42,14 @@ __Discussion__: The following features of modeling infrastructure is very import
 - __/src__ : source files of QSP model, Heta-based format + downloaded SBML
 - _platform.json_ : Heta platform's declaration file
 - _README.md_ : this file
+
+## Original model
+
+The model and data were reconstructed from the article:
+
+> Brannmark C, Nyman E, Fagerholm S, Bergenholm L, Ekstrand EM, Cedersund G, Stralfors P. Insulin Signaling in Type 2 Diabetes: EXPERIMENTAL AND MODELING ANALYSES REVEAL MECHANISMS OF INSULIN RESISTANCE IN HUMAN ADIPOCYTES. JOURNAL OF BIOLOGICAL CHEMISTRY. 2013 288(14):9867–9880. DOI: 10.1074/jbc.M112.432062
+
+The SBML version was downloaded from BioModels <https://www.ebi.ac.uk/biomodels/BIOMD0000000448>
 
 ## Contributors
 
