@@ -24,7 +24,8 @@ p |> sim |> plot
 
 ## Advanced visualization
 
-results_df = p |> sim |> DataFrame
+results_df = sim(p) |> DataFrame # simulate all scenarios, then convert them
+first(results_df, 7)
 
 #reproducing data from the original study
 
@@ -51,11 +52,37 @@ results_df = p |> sim |> DataFrame
 scn_titr_csv = read_scenarios("./julia/titration.csv")
 add_scenarios!(p, scn_titr_csv)
 
-results_titr = sim(p, saveat=[10.]) # error here when saveat=[15.]
-results_titr_df = DataFrame(results_titr, add_parameters=true)
-results_titr_subset = subset(results_titr_df, :is_titr=>x->x.===1.)
+results_titr = sim(p, saveat=[10.]);
+results_titr_df = DataFrame(results_titr, add_parameters=true);
+results_titr_subset = subset(results_titr_df, :is_titr=>x->x.===1.);
+first(results_titr_subset, 7)
 
-@df results_titr_subset plot(:insulin, :measuredmTORC2a, group=:diabetes, title = "TORC2a", xscale = :log10)
+@df results_titr_subset plot(
+    :insulin, :measuredmTORC2a,
+    title = "Fig5 1A",
+    xlabel="insulin, nM", ylabel="mTORC2a measured",
+    group=:diabetes,
+    xscale = :log10,
+    legend = :topleft
+)
 
 ## Multiple simulations
 
+results_mc = mc(
+    p,
+    [
+        :k1a => LogNormal(0.6331, 0.5),
+        :k1basal => LogNormal(0.03683, 0.5),
+        :k1c => LogNormal(0.8768, 0.5),
+        :k1d => LogNormal(31.01, 0.5)
+    ],
+    100,                      # number of 
+    scenarios = [:base, :ir], # scenarios names to simulate
+    saveat = 0:(0.1):30,      # time points
+    abstol = 1e-7
+)
+
+plot(results_mc, vars=[:measuredIRp, :measuredIRint])
+
+summary_mc = EnsembleSummary(results_mc; quantiles=[0.05,0.95])
+plot(summary_mc, idxs=[1,2]) # to plot observables 1 - IRp, 2 - IRint
