@@ -5,39 +5,62 @@ using Markdown
 using InteractiveUtils
 
 # ╔═╡ 0387c8fe-ea24-4f5f-8bde-264238175a85
-using HetaSimulator, Plots, NaNMath
+using HetaSimulator, StatsPlots, NaNMath
 
 # ╔═╡ 7021a4a7-86cf-4866-9790-6222cf01e896
 md"# Dynamic QSP reporting with Julia and Pluto.jl"
+
+# ╔═╡ b2148ea3-4200-43a6-9449-92f3fad1b67a
+md"""
+_This is an example of creation of a dynamic QSP report in Julia and Pluto.jl build based on HetaSimulator.jl. The content of this file and modeling platform is published in GitHub repository <https://github.com/insysbio/insulin-signaling-t2d>_
+"""
+
+# ╔═╡ 63d5bfbb-f86c-47a9-9c3e-4480ace0cedb
+md"""
+## Preamble
+
+The QSP model which is used as an example of QSP model was published in the article:
+
+>Brannmark C, Nyman E, Fagerholm S, Bergenholm L, Ekstrand EM, Cedersund G, Stralfors P. Insulin Signaling in Type 2 Diabetes: EXPERIMENTAL AND MODELING ANALYSES REVEAL MECHANISMS OF INSULIN RESISTANCE IN HUMAN ADIPOCYTES. JOURNAL OF BIOLOGICAL CHEMISTRY. 2013 288(14):9867–9880. DOI: 10.1074/jbc.M112.432062
+
+The SBML code was downloaded from BioModels <https://www.ebi.ac.uk/biomodels/BIOMD0000000448> and used as the part of the [Heta-based](https://hetalang.github.io/#/) modeling platform.
+
+The report includes the steps to reproduce simulations from the original article demonstration facilities of the approach and necessary setups.
+
+All necessary files can also be found in [the repository](https://github.com/insysbio/insulin-signaling-t2d).
+"""
 
 # ╔═╡ 0f2fec9b-6594-4cbe-8155-f48a4dab3fb7
 md"""
 ## Preparations
 
-Install `HetaSimulator` and `Plots` in Julia
+Install `HetaSimulator`, `StatsPlots`, `NaNMath` packages in Julia
+
 ```
-] add HetaSimulator Plots
+] add HetaSimulator Plots NaNMath
 ```
 """
 
 # ╔═╡ a9bc4164-4d07-4ab6-9e70-cfbcd20fedac
 md"""
-## Loading
-
-Loading platform with prepared files
+## Loading platform
 """
 
 # ╔═╡ f25f0e29-7d7d-4496-b4a7-5ad519e06bba
-md"_Building and loading model by two steps_"
+md"""
+Pluto.jl has a specific way to load Julia's modules. The default way by `load_platform` doesn't work.
+
+The only way to load is splitting the whole process to three steps as shown: compilation, file update, loading.
+"""
 
 # ╔═╡ 063c8aa5-4751-4bb0-9c21-915de8215282
-heta_build("..", julia_only=true, dist_dir=".");
+heta_build("..", julia_only=true, dist_dir="."); # compilation of heta platform
 
 # ╔═╡ 8bce2b2b-3163-439b-b4dc-d08f4aa03c55
 md"""
-Make an update in __\_julia/model.jl__ file.
+The next command updates __\_julia/model.jl__ file.
 
-Include `using NaNMath` in the beginning
+It includes `using NaNMath` in the beginning as follows
 
 ```julia
 #= 
@@ -46,59 +69,196 @@ Include `using NaNMath` in the beginning
 using NaNMath
 
 __platform__ = (function()
-
-### create default constants
 ...
 ```
-
-Than run loading of pre-compiled model.
 """
 
 # ╔═╡ ce57ead0-fbc7-4cb3-bde7-a9b75b04d3dc
 run(`sed -i '1s/^/using NaNMath \n/' ../_julia/model.jl`);
 
+# ╔═╡ 4218cca2-34ac-4108-a9ee-386f4a0d5662
+md"""
+Than the platform can be loaded.
+"""
+
 # ╔═╡ 407984c5-242e-4a6a-9c9f-da2cc91a2626
-p = load_jlplatform("../_julia/model.jl")
+p = load_jlplatform("../_julia/model.jl", rm_out = false)  # set heta platform location here
 
 # ╔═╡ a783c6e9-a745-4e37-b745-e8366101cf80
 m = models(p)[:nameless]
 
+# ╔═╡ 4d7d9426-0743-4a4c-a364-25540f3798ca
+md"""
+## Default simulation
+
+To simulate the observables only one line of code is required. Here we are using "chain" with `|>` syntax.
+"""
+
 # ╔═╡ e1bbe112-09eb-4f7c-a2a9-2a0cba056793
-scn_base = Scenario(m, (0.,30.))
+Scenario(m, (0.,30.)) |> sim |> plot
+
+# ╔═╡ 26d95896-75a8-4d85-b935-3f05361ef1bf
+md"Based on the original publication the insuline resistance (IR) can be set by updating three parameters."
 
 # ╔═╡ cd5de49c-7d1d-4649-b57e-0fe95aad1f77
-scn_ir = Scenario(m, (0.,30.), parameters = [:IR_total=>55., :GLUT4_total=>50, :diabetes=>0.15])
+Scenario(m, (0.,30.), parameters = [:IR_total=>55., :GLUT4_total=>50, :diabetes=>0.15]) |> sim |> plot
 
 # ╔═╡ da84dbae-be88-4638-956e-055ef056abee
 md"""
-## Simulations
+## Simulation scenarios
 
-Simulations for two scenarios for time range (0, 30)
+Two simulation scenarios above can be created in tabular format and loaded into platform `p`. Create CSV file with the following content:
+
+id | parameters.IR_total | parameters.GLUT4_total | parameters.diabetes | tspan
+---|---|---|---|---
+base | | | | 30
+ir | 55 | 50 | 0.15| 30
 """
 
-# ╔═╡ c9c0a8ad-41d3-49f7-a6d2-50a6baa87548
-res_base = scn_base |> sim
-
-# ╔═╡ 1df591cc-77ba-4f9c-9d2a-6a64011759b8
-res_ir = scn_ir |> sim
-
-# ╔═╡ 8e631134-6d3c-443c-9468-7fe980126bbd
-plot(res_base)
-
 # ╔═╡ c0324eb1-1260-47b9-b23e-b0f3f49929c8
-plot(res_ir)
+scn_csv = read_scenarios("../julia/scenarios.csv") # set csv file location here
+
+# ╔═╡ 22e1278f-56f5-4f15-9666-e7ec538b3bba
+add_scenarios!(p, scn_csv)
+
+# ╔═╡ 3ab59992-95c6-4c21-bfda-ff0592a66f76
+p
+
+# ╔═╡ 9b23a1a8-e4f4-4b7c-ad1c-ceb110d341ee
+md"""
+## Advanced visualization
+
+If you need to reshape and visualize different simulation results the easier way is to convert simulation results into `DataFrame`.
+"""
+
+# ╔═╡ e86db272-cf1c-4e80-bf43-bbb3ff6ee20b
+results_df = sim(p) |> DataFrame # simulate all scenarios, then convert them
+
+# ╔═╡ 2a715514-7c2c-457a-8d69-1a8d8046af5e
+md"The following simulations reproduce the figures from the original paper."
+
+# ╔═╡ f236c9c5-b720-4571-a4ff-ec0e12a89795
+@df results_df plot(:t, :measuredIRp, group = :scenario, title = "Fig5 1B")
+
+# ╔═╡ e2cca6b5-e9a1-449a-963c-c2c840f14b2e
+@df results_df plot(:t, :measuredIRint, group = :scenario, title = "Fig5 1C")
+
+# ╔═╡ a6d9b83b-9fde-4f67-ae3f-a102e5e25b4f
+@df results_df plot(:t, :measuredIRS1p, group = :scenario, title = "Fig5 2B")
+
+# ╔═╡ a29e5bee-b745-4bb9-8506-0f8025f7cac0
+@df results_df plot(:t, :measuredIRS1307, group = :scenario, title = "Fig5 2C")
+
+# ╔═╡ 80bac958-c5c0-4293-b480-7b3bb095ed49
+@df results_df plot(:t, :measuredPKB308p, group = :scenario, title = "Fig5 3B")
+
+# ╔═╡ b75a019f-2b55-4a6f-a8a7-70435a15f0fb
+@df results_df plot(:t, :measuredPKB473p, group = :scenario, title = "Fig5 3C")
+
+# ╔═╡ 45344e77-b326-408e-81d7-11de72852eed
+md"""
+## Titration-like simulations
+
+The simulations of another type (not time dependence) can be performed and visualized by applying different simulation scenarios. For example in the original article the titration-like experiment is simulated: intake of insulin and measurements of different observables after 10 minutes.
+
+To reproduce them the following set of scenarion should be created:
+
+id | parameters.insulin | parameters.IR_total | parameters.GLUT4_total | parameters.diabetes | tspan | parameters.is_titr
+---|---|---|---|---|---|---
+base_ins_3 | 1.00E-03 | | | | 10 | 1
+base_ins_25 | 3.16E-03 | | | | 10 | 1
+base_ins_2 | 1.00E-02 | | | | 10 | 1
+base_ins_15 | 3.16E-02 | | | | 10 | 1
+base_ins_1 | 1.00E-01 | | | | 10 | 1
+base_ins_05 | 3.16E-01 | | | | 10 | 1
+base_ins0 | 1.00E+00 | | | | 10 | 1
+base_ins05 | 3.16E+00 | | | | 10 | 1
+base_ins1 | 1.00E+01 | | | | 10 | 1
+base_ins15 | 3.16E+01 | | | | 10 | 1
+base_ins2 | 1.00E+02 | | | | 10 | 1
+ir_ins_3 | 1.00E-03 | 55 | 50 | 0.15| 10 | 1
+ir_ins_25 | 3.16E-03 | 55 | 50 | 0.15| 10 | 1
+ir_ins_2 | 1.00E-02 | 55 | 50 | 0.15| 10 | 1
+ir_ins_15 | 3.16E-02 | 55 | 50 | 0.15| 10 | 1
+ir_ins_1 | 1.00E-01 | 55 | 50 | 0.15| 10 | 1
+ir_ins_05 | 3.16E-01 | 55 | 50 | 0.15| 10 | 1
+ir_ins0 | 1.00E+00 | 55 | 50 | 0.15| 10 | 1
+ir_ins05 | 3.16E+00 | 55 | 50 | 0.15| 10 | 1
+ir_ins1 | 1.00E+01 | 55 | 50 | 0.15| 10 | 1
+ir_ins15 | 3.16E+01 | 55 | 50 | 0.15| 10 | 1
+ir_ins2 | 1.00E+02 | 55 | 50 | 0.15| 10 | 1
+"""
+
+# ╔═╡ e5721cf5-e4ba-4d45-93b8-d228aab15da0
+scn_titr_csv = read_scenarios("../julia/titration.csv")
+
+# ╔═╡ 915c245d-9b03-4fb8-a27a-dc3b958b7b9a
+add_scenarios!(p, scn_titr_csv)
+
+# ╔═╡ b24ce74c-ffff-4d46-824a-2b853a006369
+results_titr = sim(p, saveat=[10.]);
+
+# ╔═╡ 71c93c6c-8390-4df7-ade7-e23eef29f5ec
+results_titr_df = DataFrame(results_titr, add_parameters=true);
+
+# ╔═╡ 47ba0050-6f67-4027-9003-2470cdaced03
+results_titr_subset = subset(results_titr_df, :is_titr=>x->x.===1.)
+
+# ╔═╡ 07f91e70-aee0-459e-ba82-1dd01dbbfbf4
+@df results_titr_subset plot(
+    :insulin, :measuredmTORC2a,
+    title = "Fig5 1A",
+    xlabel="insulin, nM", ylabel="mTORC2a measured",
+    group=:diabetes,
+    xscale = :log10,
+    legend = :topleft
+)
+
+# ╔═╡ 10c479f3-8c8e-4255-9c7c-48fefa78ce7a
+md"""
+## Multiple simulations
+
+HetaSimulator includes the mechanism to run Monte-Carlo simulations based on parameter variability. For the demonstration purposes we will generate a random set of parameters: `k1a, k1basal, k1c, k1d`. This simulations mimic the uncertainty in the selected parameters.
+"""
+
+# ╔═╡ 28cdb580-be40-40d7-b050-3648190a5d83
+results_mc = mc(
+    p,
+    [
+        :k1a => LogNormal(0.6331, 0.5),
+        :k1basal => LogNormal(0.03683, 0.5),
+        :k1c => LogNormal(0.8768, 0.5),
+        :k1d => LogNormal(31.01, 0.5)
+    ],
+    100,                      # number of 
+    scenarios = [:base, :ir], # scenarios names to simulate
+    saveat = 0:(0.1):30,      # time points
+    abstol = 1e-7
+)
+
+# ╔═╡ bf064fc2-3d1d-4f62-8218-a1bf3451d1a9
+plot(results_mc, vars=[:measuredIRp, :measuredIRint])
+
+# ╔═╡ b30af5e7-35a8-4d74-8ca9-dbfa75fe4f28
+md"The generated dataset can be summarized to plot the median and 90% bounds for uncertainty predictions."
+
+# ╔═╡ 7bb1add5-3600-4902-832c-6903e3815b5a
+summary_mc = EnsembleSummary(results_mc; quantiles=[0.05,0.95])
+
+# ╔═╡ 3fd1c38b-472f-4afd-9c41-65f364c078fc
+plot(summary_mc, idxs=[1,2]) # to plot observables 1 - IRp, 2 - IRint
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 HetaSimulator = "630b40c4-2f38-41ff-bcb3-b2c7232fed0d"
 NaNMath = "77ba4419-2d1f-58cd-9bb1-8ffee604a2e3"
-Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
+StatsPlots = "f3b207a7-027a-5e70-b257-86293d7955fd"
 
 [compat]
 HetaSimulator = "~0.4.8"
 NaNMath = "~0.3.7"
-Plots = "~1.27.1"
+StatsPlots = "~0.14.33"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -107,6 +267,12 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.7.0"
 manifest_format = "2.0"
+
+[[deps.AbstractFFTs]]
+deps = ["ChainRulesCore", "LinearAlgebra"]
+git-tree-sha1 = "6f1d9bc1c08f9f4a8fa92e3ea3cb50153a1b40d4"
+uuid = "621f4979-c628-5d54-868e-fcf4e3e8185c"
+version = "1.1.0"
 
 [[deps.Adapt]]
 deps = ["LinearAlgebra"]
@@ -123,6 +289,18 @@ git-tree-sha1 = "62e51b39331de8911e4a7ff6f5aaf38a5f4cc0ae"
 uuid = "ec485272-7323-5ecc-a04f-4719b315124d"
 version = "0.2.0"
 
+[[deps.Arpack]]
+deps = ["Arpack_jll", "Libdl", "LinearAlgebra", "Logging"]
+git-tree-sha1 = "91ca22c4b8437da89b030f08d71db55a379ce958"
+uuid = "7d9fca2a-8960-54d3-9f78-7d1dccf2cb97"
+version = "0.5.3"
+
+[[deps.Arpack_jll]]
+deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl", "OpenBLAS_jll", "Pkg"]
+git-tree-sha1 = "5ba6c757e8feccf03a1554dfaf3e26b3cfc7fd5e"
+uuid = "68821587-b530-5797-8361-c406ea357684"
+version = "3.5.1+1"
+
 [[deps.ArrayInterface]]
 deps = ["Compat", "IfElse", "LinearAlgebra", "Requires", "SparseArrays", "Static"]
 git-tree-sha1 = "1ee88c4c76caa995a885dc2f22a5d548dfbbc0ba"
@@ -131,6 +309,12 @@ version = "3.2.2"
 
 [[deps.Artifacts]]
 uuid = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
+
+[[deps.AxisAlgorithms]]
+deps = ["LinearAlgebra", "Random", "SparseArrays", "WoodburyMatrices"]
+git-tree-sha1 = "66771c8d21c8ff5e3a93379480a2307ac36863f7"
+uuid = "13072b0f-2c55-5437-9ae7-d433b7a33950"
+version = "1.0.1"
 
 [[deps.Base64]]
 uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
@@ -199,6 +383,12 @@ deps = ["ArrayInterface", "Static"]
 git-tree-sha1 = "f576084239e6bdf801007c80e27e2cc2cd963fe0"
 uuid = "fb6a15b2-703c-40df-9091-08a04967cfa9"
 version = "0.1.6"
+
+[[deps.Clustering]]
+deps = ["Distances", "LinearAlgebra", "NearestNeighbors", "Printf", "SparseArrays", "Statistics", "StatsBase"]
+git-tree-sha1 = "75479b7df4167267d75294d14b58244695beb2ac"
+uuid = "aaaa29a8-35af-508c-8bc3-b662a17a0fe5"
+version = "0.14.2"
 
 [[deps.CodecBzip2]]
 deps = ["Bzip2_jll", "Libdl", "TranscodingStreams"]
@@ -295,6 +485,12 @@ version = "0.18.11"
 git-tree-sha1 = "bfc1187b79289637fa0ef6d4436ebdfe6905cbd6"
 uuid = "e2d170a0-9d28-54be-80f0-106bbe20a464"
 version = "1.0.0"
+
+[[deps.DataValues]]
+deps = ["DataValueInterfaces", "Dates"]
+git-tree-sha1 = "d88a19299eba280a6d062e135a43f00323ae70bf"
+uuid = "e7dc6d0d-1eca-5fa6-8ad6-5aecde8b7ea5"
+version = "0.4.13"
 
 [[deps.Dates]]
 deps = ["Printf"]
@@ -395,6 +591,18 @@ deps = ["Artifacts", "Bzip2_jll", "FreeType2_jll", "FriBidi_jll", "JLLWrappers",
 git-tree-sha1 = "d8a578692e3077ac998b50c0217dfd67f21d1e5f"
 uuid = "b22a6f82-2f65-5046-a5b2-351ab43fb4e5"
 version = "4.4.0+0"
+
+[[deps.FFTW]]
+deps = ["AbstractFFTs", "FFTW_jll", "LinearAlgebra", "MKL_jll", "Preferences", "Reexport"]
+git-tree-sha1 = "505876577b5481e50d089c1c68899dfb6faebc62"
+uuid = "7a1cc6ca-52ef-59f5-83cd-3a7055c09341"
+version = "1.4.6"
+
+[[deps.FFTW_jll]]
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
+git-tree-sha1 = "c6033cc3892d0ef5bb9cd29b7f2f0331ea5184ea"
+uuid = "f5851436-0d7a-5f13-b9de-f02708fd171a"
+version = "3.3.10+0"
 
 [[deps.FastBroadcast]]
 deps = ["LinearAlgebra", "Polyester", "Static"]
@@ -532,6 +740,8 @@ version = "2.8.1+1"
 [[deps.HetaSimulator]]
 deps = ["CSV", "DataFrames", "DataStructures", "Dates", "DiffEqBase", "Distributed", "Distributions", "LabelledArrays", "LinearAlgebra", "NLopt", "NaNMath", "NodeJS", "OrdinaryDiffEq", "ProgressMeter", "RecipesBase", "RecursiveArrayTools", "Reexport", "Sundials", "XLSX"]
 git-tree-sha1 = "1056a6766048c37cf930e1dbd398429e1582a9ea"
+repo-rev = "develop"
+repo-url = "https://github.com/hetalang/HetaSimulator.jl.git"
 uuid = "630b40c4-2f38-41ff-bcb3-b2c7232fed0d"
 version = "0.4.8"
 
@@ -574,9 +784,21 @@ git-tree-sha1 = "f550e6e32074c939295eb5ea6de31849ac2c9625"
 uuid = "83e8ac13-25f8-5344-8a64-a9f2b223428f"
 version = "0.5.1"
 
+[[deps.IntelOpenMP_jll]]
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
+git-tree-sha1 = "d979e54b71da82f3a65b62553da4fc3d18c9004c"
+uuid = "1d5cc7b8-4909-519e-a0f8-d0f5ad9712d0"
+version = "2018.0.3+2"
+
 [[deps.InteractiveUtils]]
 deps = ["Markdown"]
 uuid = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
+
+[[deps.Interpolations]]
+deps = ["AxisAlgorithms", "ChainRulesCore", "LinearAlgebra", "OffsetArrays", "Random", "Ratios", "Requires", "SharedArrays", "SparseArrays", "StaticArrays", "WoodburyMatrices"]
+git-tree-sha1 = "b15fc0a95c564ca2e0a7ae12c1f095ca848ceb31"
+uuid = "a98d9a8b-a2ab-59e6-89dd-64a1c18fca59"
+version = "0.13.5"
 
 [[deps.InverseFunctions]]
 deps = ["Test"]
@@ -634,6 +856,12 @@ git-tree-sha1 = "cae5e3dfd89b209e01bcd65b3a25e74462c67ee0"
 uuid = "ef3ab10e-7fda-4108-b977-705223b18434"
 version = "0.3.0"
 
+[[deps.KernelDensity]]
+deps = ["Distributions", "DocStringExtensions", "FFTW", "Interpolations", "StatsBase"]
+git-tree-sha1 = "591e8dc09ad18386189610acafb970032c519707"
+uuid = "5ab0869b-81aa-558d-bb23-cbf5423bbe9b"
+version = "0.6.3"
+
 [[deps.Krylov]]
 deps = ["LinearAlgebra", "Printf", "SparseArrays"]
 git-tree-sha1 = "a024280a69c49f51ba29d2deb66f07508f0b9b49"
@@ -686,6 +914,10 @@ deps = ["ArrayInterface", "LinearAlgebra", "ManualMemory", "SIMDTypes", "Static"
 git-tree-sha1 = "b651f573812d6c36c22c944dd66ef3ab2283dfa1"
 uuid = "10f19ff3-798f-405d-979b-55457f8fc047"
 version = "0.1.6"
+
+[[deps.LazyArtifacts]]
+deps = ["Artifacts", "Pkg"]
+uuid = "4af54fe1-eca0-43a8-85a7-787d91b784e3"
 
 [[deps.LibCURL]]
 deps = ["LibCURL_jll", "MozillaCACerts_jll"]
@@ -785,6 +1017,12 @@ git-tree-sha1 = "077c7c9d746cbe30ac5f001ea4c1277f64cc5dad"
 uuid = "bdcacae8-1622-11e9-2a5c-532679323890"
 version = "0.12.103"
 
+[[deps.MKL_jll]]
+deps = ["Artifacts", "IntelOpenMP_jll", "JLLWrappers", "LazyArtifacts", "Libdl", "Pkg"]
+git-tree-sha1 = "e595b205efd49508358f7dc670a940c790204629"
+uuid = "856f044c-d86e-5d09-b602-aeab76dc8ba7"
+version = "2022.0.0+0"
+
 [[deps.MacroTools]]
 deps = ["Markdown", "Random"]
 git-tree-sha1 = "3d3e902b31198a27340d0bf00d6ac452866021cf"
@@ -844,6 +1082,12 @@ git-tree-sha1 = "c6190f9a7fc5d9d5915ab29f2134421b12d24a68"
 uuid = "46d2c3a1-f734-5fdb-9937-b9b9aeba4221"
 version = "0.2.2"
 
+[[deps.MultivariateStats]]
+deps = ["Arpack", "LinearAlgebra", "SparseArrays", "Statistics", "StatsAPI", "StatsBase"]
+git-tree-sha1 = "7008a3412d823e29d370ddc77411d593bd8a3d03"
+uuid = "6f286f6a-111f-5878-ab1e-185364afe411"
+version = "0.9.1"
+
 [[deps.MutableArithmetics]]
 deps = ["LinearAlgebra", "SparseArrays", "Test"]
 git-tree-sha1 = "ba8c0f8732a24facba709388c74ba99dcbfdda1e"
@@ -879,6 +1123,12 @@ git-tree-sha1 = "b086b7ea07f8e38cf122f5016af580881ac914fe"
 uuid = "77ba4419-2d1f-58cd-9bb1-8ffee604a2e3"
 version = "0.3.7"
 
+[[deps.NearestNeighbors]]
+deps = ["Distances", "StaticArrays"]
+git-tree-sha1 = "16baacfdc8758bc374882566c9187e785e85c2f0"
+uuid = "b8a86587-4115-5ab1-83bc-aa920d37bbce"
+version = "0.4.9"
+
 [[deps.NetworkOptions]]
 uuid = "ca575930-c2e3-43a9-ace4-1e988b2c1908"
 
@@ -893,6 +1143,11 @@ deps = ["ArrayInterface", "FiniteDiff", "ForwardDiff", "IterativeSolvers", "Line
 git-tree-sha1 = "aeebff6a2a23506e5029fd2248a26aca98e477b3"
 uuid = "8913a72c-1f9b-4ce2-8d82-65094dcecaec"
 version = "0.3.16"
+
+[[deps.Observables]]
+git-tree-sha1 = "fe29afdef3d0c4a8286128d4e45cc50621b1e43d"
+uuid = "510215fc-4207-5dde-b226-833fc4488ee2"
+version = "0.4.0"
 
 [[deps.OffsetArrays]]
 deps = ["Adapt"]
@@ -1064,6 +1319,12 @@ uuid = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
 [[deps.Random]]
 deps = ["SHA", "Serialization"]
 uuid = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+
+[[deps.Ratios]]
+deps = ["Requires"]
+git-tree-sha1 = "dc84268fe0e3335a62e315a3a7cf2afa7178a734"
+uuid = "c84ed2f1-dad5-54f0-aa8e-dbefe2724439"
+version = "0.4.3"
 
 [[deps.RecipesBase]]
 git-tree-sha1 = "6bf3f380ff52ce0832ddd3a2a7b9538ed1bcca7d"
@@ -1239,6 +1500,12 @@ git-tree-sha1 = "25405d7016a47cf2bd6cd91e66f4de437fd54a07"
 uuid = "4c63d2b9-4356-54db-8cca-17b64c39e42c"
 version = "0.9.16"
 
+[[deps.StatsPlots]]
+deps = ["AbstractFFTs", "Clustering", "DataStructures", "DataValues", "Distributions", "Interpolations", "KernelDensity", "LinearAlgebra", "MultivariateStats", "Observables", "Plots", "RecipesBase", "RecipesPipeline", "Reexport", "StatsBase", "TableOperations", "Tables", "Widgets"]
+git-tree-sha1 = "4d9c69d65f1b270ad092de0abe13e859b8c55cad"
+uuid = "f3b207a7-027a-5e70-b257-86293d7955fd"
+version = "0.14.33"
+
 [[deps.StrideArraysCore]]
 deps = ["ArrayInterface", "CloseOpenIntervals", "IfElse", "LayoutPointers", "ManualMemory", "Requires", "SIMDTypes", "Static", "ThreadingUtilities"]
 git-tree-sha1 = "49d616ef230fec080d02ada0ca5639e652cca06b"
@@ -1274,6 +1541,12 @@ version = "5.2.1+0"
 [[deps.TOML]]
 deps = ["Dates"]
 uuid = "fa267f1f-6049-4f14-aa54-33bafae1ed76"
+
+[[deps.TableOperations]]
+deps = ["SentinelArrays", "Tables", "Test"]
+git-tree-sha1 = "e383c87cf2a1dc41fa30c093b2a19877c83e1bc1"
+uuid = "ab02a1b2-a7df-11e8-156e-fb1833f50b87"
+version = "1.2.0"
 
 [[deps.TableTraits]]
 deps = ["IteratorInterfaceExtensions"]
@@ -1370,6 +1643,18 @@ deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
 git-tree-sha1 = "4528479aa01ee1b3b4cd0e6faef0e04cf16466da"
 uuid = "2381bf8a-dfd0-557d-9999-79630e7b1b91"
 version = "1.25.0+0"
+
+[[deps.Widgets]]
+deps = ["Colors", "Dates", "Observables", "OrderedCollections"]
+git-tree-sha1 = "505c31f585405fc375d99d02588f6ceaba791241"
+uuid = "cc8bc4a8-27d6-5769-a93b-9d913e69aa62"
+version = "0.6.5"
+
+[[deps.WoodburyMatrices]]
+deps = ["LinearAlgebra", "SparseArrays"]
+git-tree-sha1 = "de67fa59e33ad156a590055375a30b23c40299d3"
+uuid = "efce3f68-66dc-5838-9240-27a6d6f5f9b6"
+version = "0.5.5"
 
 [[deps.XLSX]]
 deps = ["Dates", "EzXML", "Printf", "Tables", "ZipFile"]
@@ -1594,21 +1879,47 @@ version = "0.9.1+5"
 
 # ╔═╡ Cell order:
 # ╟─7021a4a7-86cf-4866-9790-6222cf01e896
+# ╟─b2148ea3-4200-43a6-9449-92f3fad1b67a
+# ╟─63d5bfbb-f86c-47a9-9c3e-4480ace0cedb
 # ╟─0f2fec9b-6594-4cbe-8155-f48a4dab3fb7
-# ╠═0387c8fe-ea24-4f5f-8bde-264238175a85
 # ╟─a9bc4164-4d07-4ab6-9e70-cfbcd20fedac
+# ╠═0387c8fe-ea24-4f5f-8bde-264238175a85
 # ╟─f25f0e29-7d7d-4496-b4a7-5ad519e06bba
 # ╠═063c8aa5-4751-4bb0-9c21-915de8215282
 # ╟─8bce2b2b-3163-439b-b4dc-d08f4aa03c55
 # ╠═ce57ead0-fbc7-4cb3-bde7-a9b75b04d3dc
+# ╟─4218cca2-34ac-4108-a9ee-386f4a0d5662
 # ╠═407984c5-242e-4a6a-9c9f-da2cc91a2626
 # ╠═a783c6e9-a745-4e37-b745-e8366101cf80
+# ╟─4d7d9426-0743-4a4c-a364-25540f3798ca
 # ╠═e1bbe112-09eb-4f7c-a2a9-2a0cba056793
+# ╟─26d95896-75a8-4d85-b935-3f05361ef1bf
 # ╠═cd5de49c-7d1d-4649-b57e-0fe95aad1f77
 # ╟─da84dbae-be88-4638-956e-055ef056abee
-# ╠═c9c0a8ad-41d3-49f7-a6d2-50a6baa87548
-# ╠═1df591cc-77ba-4f9c-9d2a-6a64011759b8
-# ╠═8e631134-6d3c-443c-9468-7fe980126bbd
 # ╠═c0324eb1-1260-47b9-b23e-b0f3f49929c8
+# ╠═22e1278f-56f5-4f15-9666-e7ec538b3bba
+# ╠═3ab59992-95c6-4c21-bfda-ff0592a66f76
+# ╟─9b23a1a8-e4f4-4b7c-ad1c-ceb110d341ee
+# ╠═e86db272-cf1c-4e80-bf43-bbb3ff6ee20b
+# ╟─2a715514-7c2c-457a-8d69-1a8d8046af5e
+# ╠═f236c9c5-b720-4571-a4ff-ec0e12a89795
+# ╠═e2cca6b5-e9a1-449a-963c-c2c840f14b2e
+# ╠═a6d9b83b-9fde-4f67-ae3f-a102e5e25b4f
+# ╠═a29e5bee-b745-4bb9-8506-0f8025f7cac0
+# ╠═80bac958-c5c0-4293-b480-7b3bb095ed49
+# ╠═b75a019f-2b55-4a6f-a8a7-70435a15f0fb
+# ╟─45344e77-b326-408e-81d7-11de72852eed
+# ╠═e5721cf5-e4ba-4d45-93b8-d228aab15da0
+# ╠═915c245d-9b03-4fb8-a27a-dc3b958b7b9a
+# ╠═b24ce74c-ffff-4d46-824a-2b853a006369
+# ╠═71c93c6c-8390-4df7-ade7-e23eef29f5ec
+# ╠═47ba0050-6f67-4027-9003-2470cdaced03
+# ╠═07f91e70-aee0-459e-ba82-1dd01dbbfbf4
+# ╟─10c479f3-8c8e-4255-9c7c-48fefa78ce7a
+# ╠═28cdb580-be40-40d7-b050-3648190a5d83
+# ╠═bf064fc2-3d1d-4f62-8218-a1bf3451d1a9
+# ╟─b30af5e7-35a8-4d74-8ca9-dbfa75fe4f28
+# ╠═7bb1add5-3600-4902-832c-6903e3815b5a
+# ╠═3fd1c38b-472f-4afd-9c41-65f364c078fc
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

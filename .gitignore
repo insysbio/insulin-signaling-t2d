@@ -10,3 +10,4 @@
 *.log
 .Rhistory
 .ipynb_checkpoints
+_julia
