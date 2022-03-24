@@ -28,7 +28,7 @@ md"""
 
 The QSP model which is used as an example of QSP model was published in the article:
 
->Brannmark C, Nyman E, Fagerholm S, Bergenholm L, Ekstrand EM, Cedersund G, Stralfors P. Insulin Signaling in Type 2 Diabetes: EXPERIMENTAL AND MODELING ANALYSES REVEAL MECHANISMS OF INSULIN RESISTANCE IN HUMAN ADIPOCYTES. JOURNAL OF BIOLOGICAL CHEMISTRY. 2013 288(14):9867–9880. DOI: 10.1074/jbc.M112.432062
+>Brannmark C, Nyman E, Fagerholm S, Bergenholm L, Ekstrand EM, Cedersund G, Stralfors P. Insulin Signaling in Type 2 Diabetes: Experimental and modeling analyses reveal mechanisms of insulin resistance in human adipocytes. Journal of biological chemistry.. 2013 288(14):9867–9880. DOI: 10.1074/jbc.M112.432062
 
 The SBML code was downloaded from BioModels <https://www.ebi.ac.uk/biomodels/BIOMD0000000448> and used as the part of the [Heta-based](https://hetalang.github.io/#/) modeling platform.
 

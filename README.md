@@ -38,6 +38,7 @@ __Discussion__: The following features of modeling infrastructure is very import
 - __/julia__ : files to run in plain julia, scenarios tables for all notebooks
 - __/julia-jupiter__ : The Jupiter-based notebook, can be run with `using IJulia; notebook(dir=".")` in Julia
 - __/julia-pluto__ : The Pluto-based notebook, can be run with `using Pluto; Pluto.run()` in Julia
+- __/r-markdown__ : RMarkdown notebook, can be run from RStudio using `knit` mechanism
 - __/outputs__ : the result of the notebooks execution, not runnable files
 - __/src__ : source files of QSP model, Heta-based format + downloaded SBML
 - _platform.json_ : Heta platform's declaration file
@@ -47,7 +48,7 @@ __Discussion__: The following features of modeling infrastructure is very import
 
 The model and data were reconstructed from the article:
 
-> Brannmark C, Nyman E, Fagerholm S, Bergenholm L, Ekstrand EM, Cedersund G, Stralfors P. Insulin Signaling in Type 2 Diabetes: EXPERIMENTAL AND MODELING ANALYSES REVEAL MECHANISMS OF INSULIN RESISTANCE IN HUMAN ADIPOCYTES. JOURNAL OF BIOLOGICAL CHEMISTRY. 2013 288(14):9867–9880. DOI: 10.1074/jbc.M112.432062
+> Brannmark C, Nyman E, Fagerholm S, Bergenholm L, Ekstrand EM, Cedersund G, Stralfors P. Insulin Signaling in Type 2 Diabetes: Experimental and modeling analysis reveal mechanisms of insulin resistance in human adipocytes. Journal of biological chemistry. 2013 288(14):9867–9880. DOI: 10.1074/jbc.M112.432062
 
 The SBML version was downloaded from BioModels <https://www.ebi.ac.uk/biomodels/BIOMD0000000448>
 
