@@ -1,0 +1,184 @@
+---
+title: "Dynamic QSP reporting with R and RMarkdown"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+_This is an example of creation of a dynamic QSP report in R and RMarkdown build based on heta-compiler and mrgsolve. The content of this file and modeling platform is published in GitHub repository <https://github.com/insysbio/insulin-signaling-t2d>_
+
+## Preamble
+
+The QSP model which is used as an example of QSP model was published in the article:
+
+> Brannmark C, Nyman E, Fagerholm S, Bergenholm L, Ekstrand EM, Cedersund G, Stralfors P. Insulin Signaling in Type 2 Diabetes: EXPERIMENTAL AND MODELING ANALYSES REVEAL MECHANISMS OF INSULIN RESISTANCE IN HUMAN ADIPOCYTES. JOURNAL OF BIOLOGICAL CHEMISTRY. 2013 288(14):9867–9880. DOI: 10.1074/jbc.M112.432062
+
+The SBML code was downloaded from BioModels <https://www.ebi.ac.uk/biomodels/BIOMD0000000448> and used as the part of the [Heta-based](https://hetalang.github.io/#/) modeling platform.
+
+The report includes the steps to reproduce simulations from the original article demonstration facilities of the approach and necessary setups.
+
+All necessary files can also be found in the [repository](https://github.com/insysbio/insulin-signaling-t2d).
+
+## Preparations
+
+For easier creation of the Heta-based platform install [heta compiler](https://hetalang.github.io/#/heta-compiler/?id=installation).
+
+In command line interface run the code below to create heta platform template
+
+```sh
+heta init
+```
+The minimal content will be created.
+
+Download the SBML model [from the database](https://www.ebi.ac.uk/biomodels/BIOMD0000000448) and copy it into `src/BIOMD0000000448.xml`
+
+Update the `src/index.heta` with the following content:
+
+```heta
+// load SBML model as a content of the platform
+include BIOMD0000000448_url.xml type sbml
+
+// make the records of a model observable
+block {output: true} begin
+  measuredIRp;
+  measuredIRint;
+  measuredIRS1p;
+  measuredIRS1307;
+  measuredPKB308p;
+  measuredPKB473p;
+  measuredAS160p;
+  measuredmTORC1a;
+  measuredS6Kp;
+  glucoseuptake;
+  measuredmTORC2a;
+  measuredS6p;
+end
+
+// make insulin as an input of the model
+insulin @Const = 10; // nM
+
+// make IR (insuline resistance) specific parameters as an input of the model
+IR_total @Const = 100;    // reduce to 55%
+GLUT4_total @Const = 100; // GLUT4 reduce to 50%
+diabetes @Const = 1;      // reduce to 15%
+
+// recalculate initial values for IR and base conditions
+IR .= IR_total * 99.87/100; // 99.87
+IRp .= 0;
+IRins .= 0;
+IRip .= IR_total * 0.02/100;      // 0.02
+IRi .= IR_total * 0.11/100;       // 0.11
+//
+GLUT4 .= GLUT4_total * 73.48/100;   // 73.48
+GLUT4m .= GLUT4_total * 26.52/100;  // 26.52
+
+// variable parameters
+k1a @Const = 0.6331;
+k1basal @Const = 0.03683;
+k1c @Const = 0.8768;
+k1d @Const = 31.01;
+
+#export { format: Mrgsolve, filepath: _mrgsolve };
+```
+
+Install [R](https://www.r-project.org/) and add all necessary packages in Julia's console:
+
+```{r eval=FALSE}
+install.packages('mrgsolve')
+install.packages('ggplot2')
+```
+
+## Loading platform
+
+```{r message=FALSE, warning=FALSE}
+library('mrgsolve')
+library('ggplot2')
+```
+
+```{r}
+system('heta build --dist-dir . ..', intern = TRUE)
+```
+
+```{r}
+m <- mrgsolve::mread(model = 'nameless', file = '../_mrgsolve/nameless.cpp')
+
+observables <- paste(
+  'measuredIRp',
+  'measuredIRint',
+  'measuredIRS1p',
+  'measuredIRS1307',
+  'measuredPKB308p',
+  'measuredPKB473p',
+  'measuredAS160p',
+  'measuredmTORC1a',
+  'measuredS6Kp',
+  'glucoseuptake',
+  'measuredmTORC2a',
+  'measuredS6p',
+  sep=', '
+)
+```
+
+## Default simulation
+
+```{r}
+m %>% mrgsim(end = 30, outvars = observables) %>% plot
+
+m %>% param(IR_total=55, GLUT4_total=50, diabetes=0.15) %>% mrgsim(end = 30, outvars = observables) %>% plot
+```
+
+## Simulation scenarios
+
+```{r}
+scn_base <- m %>% update(end = 30, outvars = observables)
+scn_ir <- m %>% param(IR_total=55, GLUT4_total=50, diabetes=0.15) %>% update(end = 30, outvars = observables)
+```
+
+## Advanced visualization
+
+```{r}
+results_df_base <- mrgsim(scn_base) %>% as.data.frame
+results_df_ir <- mrgsim(scn_ir) %>% as.data.frame
+
+
+results_df_base$scenario <- 'base'
+results_df_ir$scenario <- 'ir'
+results_df <- rbind(results_df_base, results_df_ir)
+
+knitr::kable(head(results_df), format="html")
+```
+
+```{r}
+ggplot(results_df, aes(x=time, y=measuredIRp)) +
+  geom_line(aes(col=scenario)) +
+  labs(title="Fig5 1B")
+```
+
+```{r}
+ggplot(results_df, aes(x=time, y=measuredIRint)) +
+  geom_line(aes(col=scenario)) +
+  labs(title="Fig5 1C")
+```
+```{r}
+ggplot(results_df, aes(x=time, y=measuredIRS1p)) +
+  geom_line(aes(col=scenario)) +
+  labs(title="Fig5 2B")
+```
+```{r}
+ggplot(results_df, aes(x=time, y=measuredIRS1p)) +
+  geom_line(aes(col=scenario)) +
+  labs(title="Fig5 2C")
+```
+```{r}
+ggplot(results_df, aes(x=time, y=measuredPKB308p)) +
+  geom_line(aes(col=scenario)) +
+  labs(title="Fig5 3B")
+```
+```{r}
+ggplot(results_df, aes(x=time, y=measuredPKB473p)) +
+  geom_line(aes(col=scenario)) +
+  labs(title="Fig5 3C")
+```
+

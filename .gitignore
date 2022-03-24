@@ -11,3 +11,6 @@
 .Rhistory
 .ipynb_checkpoints
 _julia
+
+.RData
+_mrgsolve
