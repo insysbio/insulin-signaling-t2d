@@ -7,7 +7,8 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-_This is an example of creation of a dynamic QSP report in R and RMarkdown build based on heta-compiler and mrgsolve. The content of this file and modeling platform is published in GitHub repository <https://github.com/insysbio/insulin-signaling-t2d>_
+_This is an example of creation of a dynamic QSP report in R and RMarkdown build based on heta-compiler and mrgsolve. 
+The content of this file and modeling platform is published in GitHub repository <https://github.com/insysbio/insulin-signaling-t2d>_
 
 ## Preamble
 
@@ -25,7 +26,7 @@ All necessary files can also be found in the [repository](https://github.com/ins
 
 For easier creation of the Heta-based platform install [heta compiler](https://hetalang.github.io/#/heta-compiler/?id=installation).
 
-In command line interface run the code below to create heta platform template
+In command line interface (console) run the code below to create heta platform template
 
 ```sh
 heta init
@@ -56,10 +57,10 @@ block {output: true} begin
   measuredS6p;
 end
 
-// make insulin as an input of the model
+// make insulin to be an input of the model
 insulin @Const = 10; // nM
 
-// make IR (insuline resistance) specific parameters as an input of the model
+// make IR (insuline resistance) specific parameters to be input of the model
 IR_total @Const = 100;    // reduce to 55%
 GLUT4_total @Const = 100; // GLUT4 reduce to 50%
 diabetes @Const = 1;      // reduce to 15%
@@ -83,7 +84,7 @@ k1d @Const = 31.01;
 #export { format: Mrgsolve, filepath: _mrgsolve };
 ```
 
-Install [R](https://www.r-project.org/) and add all necessary packages in Julia's console:
+Install [R](https://www.r-project.org/), [RStudio](https://www.rstudio.com/products/rstudio/) and add all necessary packages:
 
 ```{r eval=FALSE}
 install.packages('mrgsolve')
@@ -97,13 +98,19 @@ library('mrgsolve')
 library('ggplot2')
 ```
 
+The approach uses __mrgsolve__ package as a simulation engine and __Heta compiler__ is a connector to SBML and Heta formats.
+Heta compiler can be run from the R environment. Mind the current working directory and the location of the Heta-based platform: `..`.
+
 ```{r}
 system('heta build --dist-dir . ..', intern = TRUE)
 ```
 
+After compiling model it can be loaded into mrgsolve.
+
 ```{r}
 m <- mrgsolve::mread(model = 'nameless', file = '../_mrgsolve/nameless.cpp')
 
+# list of observables
 observables <- paste(
   'measuredIRp',
   'measuredIRint',
@@ -123,13 +130,22 @@ observables <- paste(
 
 ## Default simulation
 
+To simulate the observables only one line of code is required. Here we are using "chain" with `%>%` syntax.
+
 ```{r}
 m %>% mrgsim(end = 30, outvars = observables) %>% plot
+```
 
+Based on the original publication the insuline resistance (IR) can be set by updating three parameters.
+
+```{r}
 m %>% param(IR_total=55, GLUT4_total=50, diabetes=0.15) %>% mrgsim(end = 30, outvars = observables) %>% plot
 ```
 
 ## Simulation scenarios
+
+Mrgsolve does not operate with "scenario/condition" terms.
+This functionality can be reproduced by `update` function.
 
 ```{r}
 scn_base <- m %>% update(end = 30, outvars = observables)
@@ -137,6 +153,10 @@ scn_ir <- m %>% param(IR_total=55, GLUT4_total=50, diabetes=0.15) %>% update(end
 ```
 
 ## Advanced visualization
+
+If you need to reshape and visualize different simulation results the easier way is to convert simulation results into `data.frame`.
+
+The following simulations reproduce the figures from the original paper.
 
 ```{r}
 results_df_base <- mrgsim(scn_base) %>% as.data.frame
@@ -147,38 +167,126 @@ results_df_base$scenario <- 'base'
 results_df_ir$scenario <- 'ir'
 results_df <- rbind(results_df_base, results_df_ir)
 
-knitr::kable(head(results_df), format="html")
+knitr::kable(head(results_df), format = "html")
 ```
 
 ```{r}
-ggplot(results_df, aes(x=time, y=measuredIRp)) +
-  geom_line(aes(col=scenario)) +
-  labs(title="Fig5 1B")
+ggplot(results_df, aes(x = time, y = measuredIRp)) +
+  geom_line(aes(col = scenario)) +
+  labs(title = "Fig5 1B")
 ```
 
 ```{r}
-ggplot(results_df, aes(x=time, y=measuredIRint)) +
-  geom_line(aes(col=scenario)) +
-  labs(title="Fig5 1C")
+ggplot(results_df, aes(x = time, y = measuredIRint)) +
+  geom_line(aes(col = scenario)) +
+  labs(title = "Fig5 1C")
 ```
 ```{r}
-ggplot(results_df, aes(x=time, y=measuredIRS1p)) +
-  geom_line(aes(col=scenario)) +
-  labs(title="Fig5 2B")
+ggplot(results_df, aes(x = time, y = measuredIRS1p)) +
+  geom_line(aes(col = scenario)) +
+  labs(title = "Fig5 2B")
 ```
 ```{r}
-ggplot(results_df, aes(x=time, y=measuredIRS1p)) +
-  geom_line(aes(col=scenario)) +
-  labs(title="Fig5 2C")
+ggplot(results_df, aes(x = time, y = measuredIRS1p)) +
+  geom_line(aes(col = scenario)) +
+  labs(title = "Fig5 2C")
 ```
 ```{r}
-ggplot(results_df, aes(x=time, y=measuredPKB308p)) +
-  geom_line(aes(col=scenario)) +
-  labs(title="Fig5 3B")
+ggplot(results_df, aes(x = time, y = measuredPKB308p)) +
+  geom_line(aes(col = scenario)) +
+  labs(title = "Fig5 3B")
 ```
 ```{r}
-ggplot(results_df, aes(x=time, y=measuredPKB473p)) +
-  geom_line(aes(col=scenario)) +
-  labs(title="Fig5 3C")
+ggplot(results_df, aes(x = time, y = measuredPKB473p)) +
+  geom_line(aes(col = scenario)) +
+  labs(title = "Fig5 3C")
 ```
 
+## Titration-like simulations
+
+The simulations of another type (not time dependence) can be performed and visualized by applying `idata` approach. 
+For example in the original article the titration-like experiment is simulated: 
+intake of insulin and measurements of different observables after 10 minutes.
+
+To reproduce the figures the following `idata` table should be created:
+
+```{r}
+titr_scn_df <- data.frame(ID = 1:22, insulin=c(
+  1.00E-03,
+  3.16E-03,
+  1.00E-02,
+  3.16E-02,
+  1.00E-01,
+  3.16E-01,
+  1.00E+00,
+  3.16E+00,
+  1.00E+01,
+  3.16E+01,
+  1.00E+02,
+  1.00E-03,
+  3.16E-03,
+  1.00E-02,
+  3.16E-02,
+  1.00E-01,
+  3.16E-01,
+  1.00E+00,
+  3.16E+00,
+  1.00E+01,
+  3.16E+01,
+  1.00E+02
+))
+```
+
+```{r}
+results_titr_base <- scn_base %>%
+  idata_set(titr_scn_df) %>%
+  mrgsim(end = 10) %>%
+  filter(time == 10)
+results_titr_ir <- scn_ir %>%
+  idata_set(titr_scn_df) %>%
+  mrgsim(end = 10) %>%
+  filter(time == 10)
+
+results_titr_base$scenario <- 'base'
+results_titr_ir$scenario <- 'ir'
+results_titr <- rbind(results_titr_base, results_titr_ir)
+
+results_titr$insulin <- titr_scn_df$insulin[match(results_titr$ID, titr_scn_df$ID)]
+```
+
+```{r}
+ggplot(results_titr, aes(x=insulin, y=measuredmTORC2a)) +
+  geom_line(aes(col=scenario)) +
+  scale_x_log10() +
+  labs(title="Fig5 1A")
+```
+
+## Multiple simulations
+
+`idata` can also be used to run Monte-Carlo simulations based on parameter variability.
+For the demonstration purposes we will generate a random set of parameters: k1a, k1basal, k1c, k1d.
+This simulations mimic the uncertainty in the selected parameters.
+
+```{r}
+mc_scn_df <- data.frame(
+  ID = 1:100,
+  k1a = rlnorm(100, mean = 0.6331, sd = 0.5),
+  k1basal = rlnorm(100, mean = 0.03683, sd = 0.5),
+  k1c = rlnorm(100, mean = 0.8768, sd = 0.5),
+  k1d = rlnorm(100, mean = 31.01, sd = 0.5)
+)
+```
+
+```{r}
+results_mc_base <- scn_base %>%
+  idata_set(mc_scn_df) %>%
+  mrgsim(outvars = 'measuredIRp, measuredIRint')
+results_mc_ir <- scn_ir %>%
+  idata_set(mc_scn_df) %>%
+  mrgsim(outvars = 'measuredIRp, measuredIRint')
+```
+
+```{r}
+results_mc_base %>% plot
+results_mc_ir %>% plot
+```

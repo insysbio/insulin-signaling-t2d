@@ -39,7 +39,7 @@ __Discussion__: The following features of modeling infrastructure is very import
 - __/julia-jupiter__ : The Jupiter-based notebook, can be run with `using IJulia; notebook(dir=".")` in Julia
 - __/julia-pluto__ : The Pluto-based notebook, can be run with `using Pluto; Pluto.run()` in Julia
 - __/r-markdown__ : RMarkdown notebook, can be run from RStudio using `knit` mechanism
-- __/outputs__ : the result of the notebooks execution, not runnable files
+- __/static__ : the result of the notebooks execution, not interactive: [julia-jupiter.html](static/julia-jupiter.html), [julia-pluto.html](static/julia-pluto.html), [r-markdown.html](static/r-markdown.html),
 - __/src__ : source files of QSP model, Heta-based format + downloaded SBML
 - _platform.json_ : Heta platform's declaration file
 - _README.md_ : this file
