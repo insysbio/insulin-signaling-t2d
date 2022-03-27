@@ -5,6 +5,12 @@ _Dynamic notebooks for QSP usage case: Insulin Signaling in Type 2 Diabetes_
 [![Heta project](https://img.shields.io/badge/%CD%B1-Heta_project-blue)](https://hetalang.github.io/)
 [![GitHub license](https://img.shields.io/github/license/insysbio/insulin-signaling-t2d.svg)](https://github.com/insysbio/insulin-signaling-t2d/blob/master/LICENSE)
 
+## Notebooks quick links
+
+- [julia-jupiter.html](https://insysbio.github.io/insulin-signaling-t2d/static/julia-jupiter.html),
+- [julia-pluto.html](https://insysbio.github.io/insulin-signaling-t2d/static/julia-pluto.html)
+- [r-markdown.html](https://insysbio.github.io/insulin-signaling-t2d/static/r-markdown.html)
+
 ## Abstract
 
 __Background__: Currently the mathematical modeling is applied for drug discovery and development. The report preparation and presentation are time-demanding processes. Using the formats of dynamic reports like R Markdown, Jupiter or similar ones is a good decision because of the following: 
@@ -39,7 +45,7 @@ __Discussion__: The following features of modeling infrastructure is very import
 - __/julia-jupiter__ : The Jupiter-based notebook, can be run with `using IJulia; notebook(dir=".")` in Julia
 - __/julia-pluto__ : The Pluto-based notebook, can be run with `using Pluto; Pluto.run()` in Julia
 - __/r-markdown__ : RMarkdown notebook, can be run from RStudio using `knit` mechanism
-- __/static__ : the result of the notebooks execution, not interactive: [julia-jupiter.html](static/julia-jupiter.html), [julia-pluto.html](static/julia-pluto.html), [r-markdown.html](static/r-markdown.html),
+- __/static__ : the result of the notebooks execution, not interactive: [julia-jupiter.html](https://insysbio.github.io/insulin-signaling-t2d/static/julia-jupiter.html), [julia-pluto.html](https://insysbio.github.io/insulin-signaling-t2d/static/julia-pluto.html), [r-markdown.html](https://insysbio.github.io/insulin-signaling-t2d/static/r-markdown.html),
 - __/src__ : source files of QSP model, Heta-based format + downloaded SBML
 - _platform.json_ : Heta platform's declaration file
 - _README.md_ : this file
