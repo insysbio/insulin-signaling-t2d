@@ -2,6 +2,8 @@
 
 _Dynamic notebooks for QSP usage case: Insulin Signaling in Type 2 Diabetes_
 
+[Source repository](https://github.com/insysbio/insulin-signaling-t2d)
+
 [![Heta project](https://img.shields.io/badge/%CD%B1-Heta_project-blue)](https://hetalang.github.io/)
 [![GitHub license](https://img.shields.io/github/license/insysbio/insulin-signaling-t2d.svg)](https://github.com/insysbio/insulin-signaling-t2d/blob/master/LICENSE)
 
