@@ -47,7 +47,7 @@ __Discussion__: The following features of modeling infrastructure is very import
 - __/julia-jupiter__ : The Jupiter-based notebook, can be run with `using IJulia; notebook(dir=".")` in Julia
 - __/julia-pluto__ : The Pluto-based notebook, can be run with `using Pluto; Pluto.run()` in Julia
 - __/r-markdown__ : RMarkdown notebook, can be run from RStudio using `knit` mechanism
-- __/r-jupiter__ : The Jupiter-based notebook, can be run with [anaconda](https://docs.anaconda.com/anaconda/navigator/getting-started/ `conda activate snowflakes`, `jupyter notebook --notebook-dir=Y:/PLATFORMS/insulin-signaling-t2d/r-jupiter#navigator-starting-navigator)`
+- __/r-jupiter__ : The Jupiter-based notebook, can be run with [anaconda](https://docs.anaconda.com/anaconda/navigator/getting-started/). Commands: `conda activate snowflakes`, `jupyter notebook --notebook-dir=Y:/PLATFORMS/insulin-signaling-t2d/r-jupiter)`
 - __/static__ : the result of the notebooks execution, not interactive: [julia-jupiter.html](https://insysbio.github.io/insulin-signaling-t2d/static/julia-jupiter.html), [julia-pluto.html](https://insysbio.github.io/insulin-signaling-t2d/static/julia-pluto.html), [r-markdown.html](https://insysbio.github.io/insulin-signaling-t2d/static/r-markdown.html), [r-jupiter.html](https://insysbio.github.io/insulin-signaling-t2d/static/r-jupiter.html)
 - __/src__ : source files of QSP model, Heta-based format + downloaded SBML
 - _platform.json_ : Heta platform's declaration file
@@ -66,12 +66,3 @@ The SBML version was downloaded from BioModels <https://www.ebi.ac.uk/biomodels/
 - @metelkin
 
 The model and data in the study were reproduced from the published study. The authors of the original study are: Brannmark C, Nyman E, Fagerholm S, Bergenholm L, Ekstrand EM, Cedersund G, Stralfors P.
-
-
-## notes
-
-```
-anaconda prompt
-conda activate snowflakes
-jupyter notebook --notebook-dir=Y:/PLATFORMS/insulin-signaling-t2d/r-jupiter
-```
