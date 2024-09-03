@@ -1,10 +1,12 @@
 {
-  "builderVersion": "^0.6.12",
+  "builderVersion": "0.8.6",
   "id": "template",
   "notes": "platform notes",
-  "version": "v0.1.0",
+  "version": "v0.1.1",
   "license": "UNLICENSED",
-  "options": {},
+  "options": {
+    "unitsCheck": false
+  },
   "importModule": {
     "type": "heta",
     "source": "src/index.heta"

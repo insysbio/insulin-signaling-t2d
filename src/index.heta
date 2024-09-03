@@ -2,10 +2,10 @@
   template file for creating platform
 */
 // add qsp units
-//include ./qsp-units.heta
+//include ./qsp-units.heta;
 
 // load SBML model as a content of the platform
-include BIOMD0000000448_url.xml type sbml
+include BIOMD0000000448_url.xml type sbml;
 
 // make the records of a model observable
 block {output: true} begin
@@ -46,6 +46,7 @@ k1a @Const = 0.6331;
 k1basal @Const = 0.03683;
 k1c @Const = 0.8768;
 k1d @Const = 31.01;
+//is_titr @Const = 0;
 
 // exports
 //#export { format: JSON, filepath: output };

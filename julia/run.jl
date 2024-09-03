@@ -2,11 +2,13 @@
 
 ## Preparations
 
-using HetaSimulator, StatsPlots
+using HetaSimulator
+using StatsPlots
 
 ## Loading
 
 p = load_platform(".", rm_out = true)
+p = load_platform(".")
 m = models(p)[:nameless]
 
 ## Default simulation
@@ -49,15 +51,25 @@ first(results_df, 7)
 
 ### Titration-like simulations
 
-scn_titr_csv = read_scenarios("./julia/titration.csv")
-add_scenarios!(p, scn_titr_csv)
+mcvecs1 = DataFrame(
+    insulin = [1.00E-3, 1.16E-3, 1.00E-2, 3.16E-2, 1.00E-1, 3.16E-1, 1.00E0, 3.16E0, 1.00E1, 3.16E1, 1.00E2],
+    IR_total = 100.,
+    GLUT4_total = 100.,
+    diabetes = 1.,
+    )
+mcvecs2 = DataFrame(
+    insulin = [1.00E-3, 1.16E-3, 1.00E-2, 3.16E-2, 1.00E-1, 3.16E-1, 1.00E0, 3.16E0, 1.00E1, 3.16E1, 1.00E2],
+    IR_total = 55.,
+    GLUT4_total = 50.,
+    diabetes = 0.15,
+    )
+mcvecs = vcat(mcvecs1, mcvecs2)
 
-results_titr = sim(p, saveat=[10.]);
-results_titr_df = DataFrame(results_titr, add_parameters=true);
-results_titr_subset = subset(results_titr_df, :is_titr=>x->x.===1.);
-first(results_titr_subset, 7)
+results_titr = mc(p, vcat(mcvecs1, mcvecs2); scenarios = [:titr])
+results_titr_df = DataFrame(results_titr; parameters_output = [:insulin, :diabetes])
+first(results_titr_df, 7)
 
-@df results_titr_subset plot(
+@df results_titr_df plot(
     :insulin, :measuredmTORC2a,
     title = "Fig5 1A",
     xlabel="insulin, nM", ylabel="mTORC2a measured",
@@ -84,5 +96,5 @@ results_mc = mc(
 
 plot(results_mc, vars=[:measuredIRp, :measuredIRint])
 
-summary_mc = EnsembleSummary(results_mc; quantiles=[0.05,0.95])
-plot(summary_mc, idxs=[1,2]) # to plot observables 1 - IRp, 2 - IRint
+summary_mc = EnsembleSummary(results_mc; quantiles=[0.05, 0.95])
+plot(summary_mc, vars=[:measuredIRp, :measuredIRint]) # to plot all observables

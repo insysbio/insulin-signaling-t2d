@@ -1,3 +1,4 @@
-id,parameters.IR_total,parameters.GLUT4_total,parameters.diabetes,tspan
-base,,,,30
-ir,55,50,0.15,30
+id,parameters.IR_total,parameters.GLUT4_total,parameters.diabetes,tspan,saveat[]
+base,,,,30,0:0.1:30
+ir,55,50,0.15,30,0:0.1:30
+titr,,,,10,10
