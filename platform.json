@@ -1,5 +1,5 @@
 {
-  "builderVersion": "0.8.6",
+  "builderVersion": ">=0.10.0",
   "id": "template",
   "notes": "platform notes",
   "version": "v0.1.1",
@@ -10,5 +10,9 @@
   "importModule": {
     "type": "heta",
     "source": "src/index.heta"
-  }
+  },
+  "export": [
+    { "format": "Mrgsolve", "filepath": "_mrgsolve" },
+    { "format": "Dot" }
+  ]
 }

@@ -96,5 +96,5 @@ results_mc = mc(
 
 plot(results_mc, vars=[:measuredIRp, :measuredIRint])
 
-summary_mc = EnsembleSummary(results_mc; quantiles=[0.05, 0.95])
+summary_mc = EnsembleSummary(results_mc; quantiles=[0.05, 0.95]);
 plot(summary_mc, vars=[:measuredIRp, :measuredIRint]) # to plot all observables

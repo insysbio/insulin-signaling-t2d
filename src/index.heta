@@ -24,12 +24,12 @@ block {output: true} begin
 end
 
 // make insulin as an input of the model
-insulin @Const = 10; // nM
+#forceInsert insulin @Const = 10; // nM
 
 // make IR (insuline resistance) specific parameters as an input of the model
 IR_total @Const = 100;    // reduce to 55%
 GLUT4_total @Const = 100; // GLUT4 reduce to 50%
-diabetes @Const = 1;      // reduce to 15%
+#forceInsert diabetes @Const = 1;      // reduce to 15%
 
 // recalculate initial values for IR and base condition
 IR .= IR_total * 99.87/100; // 99.87
@@ -42,21 +42,8 @@ GLUT4 .= GLUT4_total * 73.48/100;   // 73.48
 GLUT4m .= GLUT4_total * 26.52/100;  // 26.52
 
 // variable parameters
-k1a @Const = 0.6331;
-k1basal @Const = 0.03683;
-k1c @Const = 0.8768;
-k1d @Const = 31.01;
+#forceInsert k1a @Const = 0.6331;
+#forceInsert k1basal @Const = 0.03683;
+#forceInsert k1c @Const = 0.8768;
+#forceInsert k1d @Const = 31.01;
 //is_titr @Const = 0;
-
-// exports
-//#export { format: JSON, filepath: output };
-//#export { format: HetaCode, filepath: model };
-//#export { format: YAML, filepath: output };
-//#export { format: XLSX, filepath: table, omitRows: 3, splitByClass: true };
-//#export { format: SBML, filepath: sbml, version: L2V4 };
-//#export { format: SLV, filepath: model, eventsOff: false };
-//#export { format: DBSolve, filepath: dbsolve };
-//#export { format: Simbio, filepath: simbio };
-#export { format: Mrgsolve, filepath: _mrgsolve };
-//#export { format: Matlab, filepath: matlab };
-//#export { format: Julia, filepath: julia };

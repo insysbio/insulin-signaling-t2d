@@ -22,9 +22,7 @@ __Background__: Currently the mathematical modeling is applied for drug discover
 2. Easy results share, review, and reproduction; 
 3. Usage of interactivity capabilities, testing of “what-if” scenarios.
 
-
 __Objectives__: Application and testing several software configurations for the development and analysis of dynamic reports. Testing the integration of the Heta-based platform into the presented environments. Comparison of the capabilities and technical issues for different configurations.
-
 
 __Methods__: We tested several configurations for dynamic reporting: 
 
@@ -60,9 +58,3 @@ The model and data were reconstructed from the article:
 > Brannmark C, Nyman E, Fagerholm S, Bergenholm L, Ekstrand EM, Cedersund G, Stralfors P. Insulin Signaling in Type 2 Diabetes: Experimental and modeling analysis reveal mechanisms of insulin resistance in human adipocytes. Journal of biological chemistry. 2013 288(14):9867–9880. DOI: 10.1074/jbc.M112.432062
 
 The SBML version was downloaded from BioModels <https://www.ebi.ac.uk/biomodels/BIOMD0000000448>
-
-## Contributors
-
-- @metelkin
-
-The model and data in the study were reproduced from the published study. The authors of the original study are: Brannmark C, Nyman E, Fagerholm S, Bergenholm L, Ekstrand EM, Cedersund G, Stralfors P.
